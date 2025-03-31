@@ -1,46 +1,42 @@
-var API_KEY = "YOUR_API_KEY"
-var cityLocation = "Paris"
-var URL =
-	"https://api.weatherapi.com/v1/current.json?key=" +
-	API_KEY +
-	"&q=" +
-	cityLocation +
-	"&aqi=yes"
+const API_KEY = "381c3dddef8d4f79b4e101211252803"
+let cityLocation = "Paris"
 
-function fetchWeather() {
-	fetch(URL)
-		.then(function (response) {
-			if (response.ok) {
-				return response.json()
-			}
-			throw new Error("Network response was not ok.")
-		})
-		.then(function (data) {
-			console.log(data)
-			var city = data.location.name
-			var temp = data.current.temp_c
-			var icon = data.current.condition.icon
-			var wind = data.current.wind_kph
-			var humidity = data.current.humidity
-			var uv = data.current.uv
-			var feelslike = data.current.feelslike_c
+const URL = `https://api.weatherapi.com/v1/current.json?key=${API_KEY}&q=${cityLocation}&aqi=yes`
 
-			document.querySelector(".card-title").textContent = city
-			//document.querySelector(".card-text").textContent = condition
-			document.querySelector(".card-img").src = icon
-			document.querySelectorAll(".list-group-item")[0].textContent =
-				"Temperature: " + temp + "°C"
-			document.querySelectorAll(".list-group-item")[1].textContent =
-				"Humidity: " + humidity + "%"
-			document.querySelectorAll(".list-group-item")[2].textContent =
-				"Feels like: " + feelslike + "°C"
-			document.querySelectorAll(".list-group-item")[3].textContent =
-				"Wind: " + wind + " km/h"
-			document.querySelectorAll(".list-group-item")[4].textContent = "UV: " + uv
-		})
-		.catch(function (error) {
-			console.error("Fetch error:", error)
-		})
+const fetchWeather = async () => {
+	try {
+		const response = await fetch(URL)
+		if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+		const { location, current } = await response.json();
+		const { name: city } = location;
+
+		const { temp_c: temp, wind_kph: wind, humidity, uv, feelslike_c: feelslike } = current;
+
+		const icon = current.condition.icon;
+
+		document.querySelector(".card-title").textContent = city;
+		document.querySelector(".card-img").src = icon;
+
+		
+		const display = [
+			`Temperature: ${temp} °C`,
+			`Humidity: ${humidity}%`,
+			`Feels like: ${feelslike}°C`,
+			`Wind: ${wind} km/h`,
+			`UV: ${uv}`
+		];
+
+		document.querySelectorAll(".list-group-item").forEach((item, index) => {
+			item.textContent = display[index];
+		});
+
+
+	} catch (error) {
+		console.error(`Fetch error: ${error}`);
+	}
 }
 
 window.onload = fetchWeather
